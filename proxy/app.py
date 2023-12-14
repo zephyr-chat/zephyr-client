@@ -60,8 +60,8 @@ def get_conversation(request):
         reply: auth_pb2.AuthResponse = stub.GetConversations(req, metadata=metadata)
         return jsonify(json.loads(MessageToJson(reply))), 200 
     except Exception as e:
-        print(f"Error occured while authentication {str(e)}")
-        response = jsonify({'message':'Error while authenticating with server'})
+        print(f"Error occured while getting conversations {str(e)}")
+        response = jsonify({'message':'Error while getting conversations'})
         return response, 401
 
 def create_conversation(request):
@@ -97,13 +97,40 @@ def get_events(request, conversation_id):
         print(reply)
         return jsonify(json.loads(MessageToJson(reply))), 200 
     except Exception as e:
-        print(f"Error occured while authentication {str(e)}")
-        response = jsonify({'message':'Error while authenticating with server'})
+        print(f"Error occured while getting events {str(e)}")
+        response = jsonify({'message':'Error while getting events'})
         return response, 401
 
 def create_event(request, conversation_id):
-    response = jsonify({'message':'Not implemented'})
-    return response, 401
+    headers = request.headers
+    access_token = headers.get('Authorization', None)
+
+    if not access_token:
+        print(f"Access token not found")
+        response = jsonify({'message':'No access token, unauthorized'})
+        return response, 401
+    
+    if not conversation_id:
+        print(f"Conversation ID not given")
+        response = jsonify({'message':'Conversation ID not given'})
+        return response, 401
+    
+    body = request.get_json()
+    content = body.get('content', None)
+    if not content:
+        response = jsonify({'message':'No content'})
+        return response, 400
+    
+    try:
+        stub = event_pb2_grpc.EventServiceStub(channel)
+        req = event_pb2.CreateEventRequest(conversation_id=int(conversation_id), content=content, type=event_pb2.ContentType.MESSAGE, previous_event_id=-1)
+        metadata = [(b'authorization', access_token.encode())]
+        reply: event_pb2.Event = stub.CreateEvent(req, metadata=metadata)
+        return jsonify(json.loads(MessageToJson(reply))), 200 
+    except Exception as e:
+        print(f"Error occured while creating event {str(e)}")
+        response = jsonify({'message':'Error while creating event'})
+        return response, 401
 
 @app.route('/conversation/<conversation_id>/event', methods=['GET', 'POST'])
 def events(conversation_id):
