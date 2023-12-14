@@ -1,7 +1,9 @@
 import json
+from concurrent import futures
 
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
+from flask_socketio import SocketIO, disconnect
 from grpc import insecure_channel
 from google.protobuf.json_format import MessageToJson
 
@@ -14,10 +16,16 @@ import event_pb2
 import event_pb2_grpc
 
 app = Flask(__name__)
-CORS(app)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['SECRET_KEY'] = SECRET_KEY
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 channel = insecure_channel(GRPC_SERVER_URL)
 
+websocket_connections = {}
+
+@cross_origin
 @app.route('/authenticate', methods=['POST'])
 def authenticate():
     if request.method != 'POST':
@@ -94,7 +102,6 @@ def get_events(request, conversation_id):
         req = event_pb2.GetEventsRequest(conversation_id=int(conversation_id))
         metadata = [(b'authorization', access_token.encode())]
         reply: event_pb2.GetEventsReply = stub.GetEvents(req, metadata=metadata)
-        print(reply)
         return jsonify(json.loads(MessageToJson(reply))), 200 
     except Exception as e:
         print(f"Error occured while getting events {str(e)}")
@@ -138,6 +145,34 @@ def events(conversation_id):
         return get_events(request, conversation_id)
     elif request.method == 'POST':
         return create_event(request, conversation_id)
+    
+@socketio.on('connect')
+def handle_connect():
+    print('New websocket session started')
+    
+    sid = request.sid
+    headers = request.headers
+    access_token = headers.get('Authorization', None)
+
+    if not access_token:
+        print(f"Access token not found in socket connection")
+        disconnect()
+    
+    def grpc_streaming_call():
+        stub = event_pb2_grpc.EventServiceStub(channel)
+        metadata = [(b'authorization', access_token.encode())]
+        for response in stub.StreamEvents(event_pb2.EmptyRequest(), metadata=metadata):
+            socketio.emit('message', MessageToJson(response), room=sid)
+
+    websocket_connections[sid] = futures.ThreadPoolExecutor().submit(grpc_streaming_call)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Websocket disconnected')
+    sid = request.sid
+    if sid in websocket_connections:
+        grpc_thread = websocket_connections.pop(sid)
+        grpc_thread.cancel()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    socketio.run(app, port=5001)

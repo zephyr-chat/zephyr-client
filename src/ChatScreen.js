@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import proxyUrl from "./Config";
 
-const ChatScreen = ({ selectedConversation }) => {
+const ChatScreen = ({ selectedConversation, newEvent }) => {
   const [message, setMessage] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [title, setTitle] = useState("Chat");
@@ -26,20 +26,27 @@ const ChatScreen = ({ selectedConversation }) => {
           }
           return response.json();
         })
-        .then((data) => setChatMessages(data.events ? data.events : []))
+        .then((data) => {
+          setChatMessages(data.events ? data.events : []);
+        })
         .catch((error) => console.error("Error fetching events:", error));
     }
   }, [selectedConversation]);
 
+  useEffect(() => {
+    if (newEvent) {
+      setChatMessages((prevMessages) => [...prevMessages, newEvent]);
+    }
+  }, [newEvent]);
+
   const handleSendMessage = () => {
     if (message.trim() !== "") {
-        console.log(JSON.stringify({ content: message }))
       const accessToken = localStorage.getItem("accessToken");
       fetch(proxyUrl + "/conversation/" + selectedConversation.id + "/event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: accessToken
+          Authorization: accessToken,
         },
         body: JSON.stringify({ content: message }),
       })
@@ -50,11 +57,8 @@ const ChatScreen = ({ selectedConversation }) => {
           return response.json();
         })
         .then((data) => {
-            setChatMessages((prevMessages) => [
-                ...prevMessages,
-                data,
-              ]);
-              setMessage("");
+          //setChatMessages((prevMessages) => [...prevMessages, data]);
+          setMessage("");
         })
         .catch((error) => console.error("Error fetching events:", error));
     }
