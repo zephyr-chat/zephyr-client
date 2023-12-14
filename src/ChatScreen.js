@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import proxyUrl from "./Config";
+import "./App.css";
 
 const ChatScreen = ({ selectedConversation, newEvent }) => {
   const [message, setMessage] = useState("");
@@ -65,7 +66,7 @@ const ChatScreen = ({ selectedConversation, newEvent }) => {
   };
 
   return (
-    <div style={{ flex: 1, padding: "20px" }}>
+    <div style={{ flex: 1, padding: "20px" }} className = "chat">
       <h2>{title}</h2>
       {selectedConversation ? (
         <>
@@ -91,7 +92,7 @@ const ChatScreen = ({ selectedConversation, newEvent }) => {
               style={{ flex: 1, marginRight: "10px" }}
               placeholder="Type your message..."
             />
-            <button onClick={handleSendMessage}>Send</button>
+            <button onClick={handleSendMessage} className="btn btn-primary">Send</button>
           </div>
         </>
       ) : (

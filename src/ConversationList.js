@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import proxyUrl from "./Config";
+import "./App.css";
 
 const ConversationList = ({ onSelectConversation }) => {
   const [conversations, setConversations] = useState([]);
@@ -24,7 +25,7 @@ const ConversationList = ({ onSelectConversation }) => {
   }, []);
 
   return (
-    <div>
+    <div className ="conv-list">
       <h2>Conversations</h2>
       <ul>
         {conversations.map((conversation) => (
