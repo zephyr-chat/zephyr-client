@@ -328,3 +328,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# gRPC generated files
+*_pb2.py
+*_pb2.pyi
+*_pb2_grpc.py
