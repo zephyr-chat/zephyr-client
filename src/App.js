@@ -5,6 +5,7 @@ import ConversationList from "./ConversationList";
 import ChatScreen from "./ChatScreen";
 import socketIOClient from "socket.io-client";
 import proxyUrl from "./Config";
+import CreateConversation from "./CreateConversation";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,6 +14,8 @@ function App() {
   const [webSocket, setWebSocket] = useState(null);
 
   const [newEvent, setNewEvent] = useState(null);
+  const [showCreateConvo, setShowCreateConvo] = useState(false);
+  
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
@@ -34,6 +37,7 @@ function App() {
   };
 
   const handleSelectConversation = (conversation) => {
+    toggleCreateConvoScreen(false)
     setSelectedConversation(conversation);
 
     if (webSocket) {
@@ -59,17 +63,22 @@ function App() {
     }
   };
 
+  const toggleCreateConvoScreen = (value) => {
+    setShowCreateConvo(value)
+  }
+
   return (
     <div className="App">
       {isLoggedIn ? (
         <div>
           <button className="Logout-button btn btn-danger" onClick={handleLogout}>Logout</button>
           <div style={{ display: "flex" }}>
-            <ConversationList onSelectConversation={handleSelectConversation} />
-            <ChatScreen
+            <ConversationList onSelectConversation={handleSelectConversation} showCreateConvoScreen={toggleCreateConvoScreen} />
+            {showCreateConvo ? (<CreateConversation />) : (<ChatScreen
               selectedConversation={selectedConversation}
               newEvent={newEvent}
-            />
+            />)}
+            
           </div>
         </div>
       ) : (

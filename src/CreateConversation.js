@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './CreateConversation.css'; // Import the CSS file
+import proxyUrl from './Config';
 
 const CreateConversation = () => {
   const [conversationName, setConversationName] = useState('');
@@ -20,29 +21,29 @@ const CreateConversation = () => {
       member_ids: members,
     };
 
-    // Send the data to the API endpoint
-    fetch('http://localhost:5001/create_conversation', {
+    const accessToken = localStorage.getItem("accessToken");
+    fetch(proxyUrl + '/conversation', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': accessToken
       },
       body: JSON.stringify(data),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Conversation created:', data); // Log the response from the API
-        // Handle response as needed (e.g., update state or show a success message)
+        console.log('Conversation created:', data);
+        window.location.reload()
       })
       .catch((error) => {
         console.error('Error creating conversation:', error);
-        // Handle error scenario
       });
   };
 
   return (
     <div className="Create-conversation">
       <h2>Create Conversation</h2>
-      <form onSubmit={handleConversationSubmit}>
+      <form>
         <div>
           <label>Conversation Name:</label>
           <input
@@ -66,11 +67,14 @@ const CreateConversation = () => {
           </div>
           <div>
             {members.map((member, index) => (
-              <span key={index}>{member}</span>
+              <div key={index}>
+                <span>{member}</span>
+                <br/>
+                </div>
             ))}
           </div>
         </div>
-        <button type="submit">Create Conversation</button>
+        <button type="button" onClick={handleConversationSubmit}>Create Conversation</button>
       </form>
     </div>
   );
