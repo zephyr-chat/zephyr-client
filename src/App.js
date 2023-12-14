@@ -1,7 +1,8 @@
-import './App.css';
-import React, { useState, useEffect } from 'react';
-import LoginPrompt from './Login';
-import ConversationList from './ConversationList';
+import "./App.css";
+import React, { useState, useEffect } from "react";
+import LoginPrompt from "./Login";
+import ConversationList from "./ConversationList";
+import ChatScreen from "./ChatScreen";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,16 +12,22 @@ function App() {
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
     if (accessToken) {
-      setIsLoggedIn(true)
+      setIsLoggedIn(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedConversation != null) {
+      console.log("Selected conversation changed:", selectedConversation);
+    }
+  }, [selectedConversation]);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
-  
+
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem("accessToken");
     setIsLoggedIn(false);
   };
 
@@ -34,7 +41,10 @@ function App() {
         <div>
           <p>Hello, User!</p>
           <button onClick={handleLogout}>Logout</button>
-          <ConversationList onSelectConversation={handleSelectConversation} />
+          <div style={{ display: "flex" }}>
+            <ConversationList onSelectConversation={handleSelectConversation} />
+            <ChatScreen selectedConversation={selectedConversation} />
+          </div>
         </div>
       ) : (
         <div>
