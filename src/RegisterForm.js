@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "./Register.css"; // Import the CSS file
+import "./Register.css";
+import proxyUrl from "./Config";
 
 const Register = ({ onRegister }) => {
   const [username, setUsername] = useState("");
@@ -10,7 +11,7 @@ const Register = ({ onRegister }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // API call to register the user
-    fetch("http://localhost:5001/register", {
+    fetch(proxyUrl + "/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
