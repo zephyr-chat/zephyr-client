@@ -177,32 +177,26 @@ def handle_disconnect():
 @app.route('/register', methods=['POST'])
 def register_user():
     try:
-        # Get data from request
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
-        display_name = data.get('display_name')
+        body = request.get_json()
+        username = body.get('username', None)
+        password = body.get('password', None)
+        display_name = body.get('display_name', None)
 
-        # Create gRPC stub for AuthService
         stub = auth_pb2_grpc.AuthServiceStub(channel)
 
-        # Create gRPC request message
-        request_message = auth_pb2.RegisterUserRequest(
+        req = auth_pb2.RegisterUserRequest(
             username=username,
             password=password,
             display_name=display_name
         )
 
-        # Make the gRPC RegisterUser call
-        response = stub.RegisterUser(request_message)
+        reply: auth_pb2.UserResponse = stub.RegisterUser(req)
 
-        # Return response as JSON
-        return jsonify({
-            'user_id': response.user_id,
-            'display_name': response.display_name
-        }), 200
+        return jsonify(json.loads(MessageToJson(reply))), 200 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Error occured while creating user {str(e)}")
+        response = jsonify({'message':'Error while creating user'})
+        return response, 500
 
 if __name__ == '__main__':
     socketio.run(app, port=5001)
