@@ -73,8 +73,39 @@ def get_conversation(request):
         return response, 401
 
 def create_conversation(request):
-    response = jsonify({'message':'Not implemented'})
-    return response, 401
+    headers = request.headers
+    access_token = headers.get('Authorization', None)
+
+    if not access_token:
+        print(f"Access token not found")
+        response = jsonify({'message':'No access token, unauthorized'})
+        return response, 401
+    
+    data = request.get_json()
+    name = data.get('name', None)
+    member_ids = data.get('member_ids', None)
+
+    if not name or not member_ids:
+        print(f"Invalid request")
+        response = jsonify({'message':'Invalid request'})
+        return response, 400
+    
+    try:
+        stub = conv_pb2_grpc.ConversationServiceStub(channel)
+
+        request_data = conv_pb2.CreateConversationRequest(
+            name=name,
+            member_ids=member_ids
+        )
+
+        metadata = [(b'authorization', access_token.encode())]
+        reply: conv_pb2.ConversationReply = stub.CreateConversation(request_data, metadata=metadata)
+
+        return jsonify(json.loads(MessageToJson(reply))), 200 
+    except Exception as e:
+        print(f"Error occurred while creating conversation: {str(e)}")
+        response = jsonify({'message': 'Error while creating conversation'})
+        return response, 500
 
 @app.route('/conversation', methods=['GET', 'POST'])
 def conversations():
@@ -196,28 +227,6 @@ def register_user():
     except Exception as e:
         print(f"Error occured while creating user {str(e)}")
         response = jsonify({'message':'Error while creating user'})
-        return response, 500
-
-@app.route('/create_conversation', methods=['POST'])
-def create_conversation():
-    try:
-        data = request.get_json()
-        name = data.get('name')
-        member_ids = data.get('member_ids', [])
-
-        stub = conv_pb2_grpc.ConversationServiceStub(channel)
-
-        request_data = conv_pb2.CreateConversationRequest(
-            name=name,
-            member_ids=member_ids
-        )
-
-        reply: conv_pb2.ConversationReply = stub.CreateConversation(request_data)
-
-        return jsonify(json.loads(MessageToJson(reply))), 200 
-    except Exception as e:
-        print(f"Error occurred while creating conversation: {str(e)}")
-        response = jsonify({'message': 'Error while creating conversation'})
         return response, 500
 
 if __name__ == '__main__':
