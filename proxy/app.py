@@ -198,5 +198,27 @@ def register_user():
         response = jsonify({'message':'Error while creating user'})
         return response, 500
 
+@app.route('/create_conversation', methods=['POST'])
+def create_conversation():
+    try:
+        data = request.get_json()
+        name = data.get('name')
+        member_ids = data.get('member_ids', [])
+
+        stub = conv_pb2_grpc.ConversationServiceStub(channel)
+
+        request_data = conv_pb2.CreateConversationRequest(
+            name=name,
+            member_ids=member_ids
+        )
+
+        reply: conv_pb2.ConversationReply = stub.CreateConversation(request_data)
+
+        return jsonify(json.loads(MessageToJson(reply))), 200 
+    except Exception as e:
+        print(f"Error occurred while creating conversation: {str(e)}")
+        response = jsonify({'message': 'Error while creating conversation'})
+        return response, 500
+
 if __name__ == '__main__':
     socketio.run(app, port=5001)
