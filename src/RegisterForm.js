@@ -19,7 +19,7 @@ const Register = ({ onRegister }) => {
       body: JSON.stringify({
         username: username,
         password: password,
-        displayname: displayName,
+        display_name: displayName,
       }),
     })
       .then((response) => response.json())
