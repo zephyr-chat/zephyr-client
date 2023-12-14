@@ -13,6 +13,10 @@ const LoginPrompt = ({ onLogin }) => {
     setShowRegisterForm(!showRegisterForm);
   };
 
+  const handleRegisterSuccess = () => {
+    toggleRegisterForm()
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage('')
@@ -79,7 +83,7 @@ const LoginPrompt = ({ onLogin }) => {
         <p>{errorMessage}</p>
       </form>
       ) : (
-        <RegisterForm />
+        <RegisterForm onRegister={handleRegisterSuccess} />
       )}
     </div>
   );
