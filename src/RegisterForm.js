@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Register.css";
-import proxyUrl from "./Config";
+import { proxyUrl } from "./Config";
 
 const Register = ({ onRegister }) => {
   const [username, setUsername] = useState("");

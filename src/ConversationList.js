@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import proxyUrl from "./Config";
+import { proxyUrl } from "./Config";
 import "./App.css";
 
 const ConversationList = ({ onSelectConversation, showCreateConvoScreen }) => {

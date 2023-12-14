@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import proxyUrl from './Config';
+import { proxyUrl } from './Config';
 import "bootstrap/dist/css/bootstrap.min.css"
 import RegisterForm from './RegisterForm';
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import proxyUrl from "./Config";
+import { proxyUrl } from "./Config";
 import "./App.css";
 
 const ChatScreen = ({ selectedConversation, newEvent }) => {

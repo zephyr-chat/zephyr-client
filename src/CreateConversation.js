@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./CreateConversation.css"; // Import the CSS file
-import proxyUrl from "./Config";
+import { zephyrServer } from "./Config";
+import { proxyUrl } from "./Config";
 
 const CreateConversation = () => {
   const [conversationName, setConversationName] = useState("");
@@ -8,17 +9,30 @@ const CreateConversation = () => {
   const [members, setMembers] = useState([]);
 
   const handleMemberAdd = () => {
-    if (memberInput.trim() !== "") {
-      setMembers([...members, memberInput.trim()]);
+    var memberId = memberInput.trim();
+    if (memberId !== "") {
+      setMembers([...members, memberId]);
       setMemberInput("");
     }
   };
 
   const handleConversationSubmit = () => {
     // Prepare data to send to the API
+    var memberIds = []
+    members.map((memberId, _) => {
+      if (!memberId.includes('@')) {
+        memberId = memberId + '@' + zephyrServer
+      } else {
+        if (!memberId.includes(':')) {
+          memberId = memberId + ':50051'
+        }
+      }
+      memberIds = [...memberIds, memberId]
+    });
+
     const data = {
       name: conversationName.trim(),
-      member_ids: members,
+      member_ids: memberIds,
     };
 
     const accessToken = localStorage.getItem("accessToken");

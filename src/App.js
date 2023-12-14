@@ -4,7 +4,7 @@ import LoginPrompt from "./Login";
 import ConversationList from "./ConversationList";
 import ChatScreen from "./ChatScreen";
 import socketIOClient from "socket.io-client";
-import proxyUrl from "./Config";
+import { proxyUrl } from "./Config";
 import CreateConversation from "./CreateConversation";
 
 function App() {
