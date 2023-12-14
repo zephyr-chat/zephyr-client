@@ -63,7 +63,7 @@ function App() {
     <div className="App">
       {isLoggedIn ? (
         <div>
-          <button className="Logout-button" onClick={handleLogout}>Logout</button>
+          <button className="Logout-button btn btn-danger" onClick={handleLogout}>Logout</button>
           <div style={{ display: "flex" }}>
             <ConversationList onSelectConversation={handleSelectConversation} />
             <ChatScreen

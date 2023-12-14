@@ -26,16 +26,16 @@ const ConversationList = ({ onSelectConversation }) => {
 
   return (
     <div className ="conv-list">
-      <h2>Conversations</h2>
-      <ul>
-        {conversations.map((conversation) => (
-          <li key={conversation.id}>
-            <button onClick={() => onSelectConversation(conversation)}>
-              {conversation.name}
-            </button>
-          </li>
-        ))}
-      </ul>
+      <h2 style = {{textAlign: 'center'}}>Conversations</h2>
+      <ul style={{ listStyle: 'none', padding: 0, textAlign: 'center' }}>
+      {conversations.map((conversation) => (
+        <li key={conversation.id} style={{ marginBottom: '10px' }}>
+          <button className="btn btn-dark" onClick={() => onSelectConversation(conversation)}>
+            {conversation.name}
+          </button>
+        </li>
+      ))}
+    </ul>
     </div>
   );
 };

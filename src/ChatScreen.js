@@ -79,7 +79,7 @@ const ChatScreen = ({ selectedConversation, newEvent }) => {
             }}
           >
             {chatMessages.map((msg, index) => (
-              <div key={index}>
+              <div key={index} style={{ backgroundColor: '#e6f7ff', padding: '8px', borderRadius: '8px', marginBottom: '8px'}}>
                 <strong>{msg.userDisplayName}:</strong> {msg.content}
               </div>
             ))}
@@ -89,10 +89,10 @@ const ChatScreen = ({ selectedConversation, newEvent }) => {
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              style={{ flex: 1, marginRight: "10px" }}
+              style={{ flex: 1, marginRight: "10px", borderRadius: "15px", padding: "8px" }}
               placeholder="Type your message..."
             />
-            <button onClick={handleSendMessage} className="btn btn-primary">Send</button>
+            <button className="btn btn-primary" onClick={handleSendMessage}>Send</button>
           </div>
         </>
       ) : (
