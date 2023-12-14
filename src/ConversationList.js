@@ -20,7 +20,7 @@ const ConversationList = ({ onSelectConversation, showCreateConvoScreen }) => {
         }
         return response.json();
       })
-      .then((data) => setConversations(data.conversations))
+      .then((data) => setConversations(data.conversations ? data.conversations : []))
       .catch((error) => console.error("Error fetching conversations:", error));
   }, []);
 
