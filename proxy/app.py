@@ -10,7 +10,8 @@ import auth_pb2_grpc
 import auth_pb2
 import conversation_pb2_grpc as conv_pb2_grpc
 import conversation_pb2 as conv_pb2
-
+import event_pb2
+import event_pb2_grpc
 
 app = Flask(__name__)
 CORS(app)
@@ -74,6 +75,42 @@ def conversations():
     elif request.method == 'POST':
         return create_conversation(request)
 
+def get_events(request, conversation_id):
+    headers = request.headers
+    access_token = headers.get('Authorization', None)
+
+    if not access_token:
+        print(f"Access token not found")
+        response = jsonify({'message':'No access token, unauthorized'})
+        return response, 401
+    
+    if not conversation_id:
+        print(f"Conversation ID not given")
+        response = jsonify({'message':'Conversation ID not given'})
+        return response, 401
+    
+    try:
+        stub = event_pb2_grpc.EventServiceStub(channel)
+        req = event_pb2.GetEventsRequest(conversation_id=int(conversation_id))
+        metadata = [(b'authorization', access_token.encode())]
+        reply: event_pb2.GetEventsReply = stub.GetEvents(req, metadata=metadata)
+        print(reply)
+        return jsonify(json.loads(MessageToJson(reply))), 200 
+    except Exception as e:
+        print(f"Error occured while authentication {str(e)}")
+        response = jsonify({'message':'Error while authenticating with server'})
+        return response, 401
+
+def create_event(request, conversation_id):
+    response = jsonify({'message':'Not implemented'})
+    return response, 401
+
+@app.route('/conversation/<conversation_id>/event', methods=['GET', 'POST'])
+def events(conversation_id):
+    if request.method == 'GET':
+        return get_events(request, conversation_id)
+    elif request.method == 'POST':
+        return create_event(request, conversation_id)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
