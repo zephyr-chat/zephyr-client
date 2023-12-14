@@ -174,5 +174,35 @@ def handle_disconnect():
         grpc_thread = websocket_connections.pop(sid)
         grpc_thread.cancel()
 
+@app.route('/register', methods=['POST'])
+def register_user():
+    try:
+        # Get data from request
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        display_name = data.get('display_name')
+
+        # Create gRPC stub for AuthService
+        stub = auth_pb2_grpc.AuthServiceStub(channel)
+
+        # Create gRPC request message
+        request_message = auth_pb2.RegisterUserRequest(
+            username=username,
+            password=password,
+            display_name=display_name
+        )
+
+        # Make the gRPC RegisterUser call
+        response = stub.RegisterUser(request_message)
+
+        # Return response as JSON
+        return jsonify({
+            'user_id': response.user_id,
+            'display_name': response.display_name
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     socketio.run(app, port=5001)
