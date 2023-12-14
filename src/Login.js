@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import proxyUrl from './Config';
 import "bootstrap/dist/css/bootstrap.min.css"
+import RegisterForm from './RegisterForm';
 
 const LoginPrompt = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('')
+  const [showRegisterForm, setShowRegisterForm] = useState('')
+
+  const toggleRegisterForm = () => {
+    setShowRegisterForm(!showRegisterForm);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,6 +43,7 @@ const LoginPrompt = ({ onLogin }) => {
 
   return (
     <div className="Auth-form-container">
+      {!showRegisterForm ? (
       <form className="Auth-form" onSubmit={handleLogin}>
         <div className="Auth-form-content">
           <h3 className="Auth-form-title">Zephyr Chat Sign In</h3>
@@ -64,10 +71,16 @@ const LoginPrompt = ({ onLogin }) => {
             <button type="submit" className="btn btn-primary">
               Submit
             </button>
+            <button type="button" className="btn btn-secondary mt-2" onClick={toggleRegisterForm}>
+              Register
+            </button>
           </div>
         </div>
         <p>{errorMessage}</p>
       </form>
+      ) : (
+        <RegisterForm />
+      )}
     </div>
   );
 };
