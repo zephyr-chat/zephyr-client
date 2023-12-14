@@ -13,7 +13,7 @@ const ChatScreen = ({ selectedConversation }) => {
     } else {
       setTitle(selectedConversation.name);
       const accessToken = localStorage.getItem("accessToken");
-      fetch(proxyUrl + "/conversation/" + selectedConversation.id + '/event', {
+      fetch(proxyUrl + "/conversation/" + selectedConversation.id + "/event", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -27,19 +27,36 @@ const ChatScreen = ({ selectedConversation }) => {
           return response.json();
         })
         .then((data) => setChatMessages(data.events ? data.events : []))
-        .catch((error) =>
-          console.error("Error fetching events:", error)
-        );
+        .catch((error) => console.error("Error fetching events:", error));
     }
   }, [selectedConversation]);
 
   const handleSendMessage = () => {
     if (message.trim() !== "") {
-      setChatMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: "You", text: message },
-      ]);
-      setMessage("");
+        console.log(JSON.stringify({ content: message }))
+      const accessToken = localStorage.getItem("accessToken");
+      fetch(proxyUrl + "/conversation/" + selectedConversation.id + "/event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: accessToken
+        },
+        body: JSON.stringify({ content: message }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => {
+            setChatMessages((prevMessages) => [
+                ...prevMessages,
+                data,
+              ]);
+              setMessage("");
+        })
+        .catch((error) => console.error("Error fetching events:", error));
     }
   };
 
